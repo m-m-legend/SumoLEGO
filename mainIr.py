@@ -60,6 +60,11 @@ def pararRobo():
 # ===== LÓGICA DE ESTADO =====
 def prox_estado(estado_atual):
     distancia = infra.distance()
+    '''if distancia > 95:  
+        pararRobo()
+        moverRoboDc(-VELOCIDADE_GIRO, VELOCIDADE_GIRO)  
+        sleep(0.3)
+        return GIRA'''
     if distancia <= DISTANCIA_MAXIMA:  
         return ANDA_RETO
     else:
