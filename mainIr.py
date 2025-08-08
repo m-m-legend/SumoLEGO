@@ -1,0 +1,88 @@
+#!/usr/bin/env pybricks-micropython
+from pybricks.hubs import EV3Brick  # type: ignore
+from pybricks.ev3devices import Motor, InfraredSensor  # type: ignore
+from pybricks.parameters import Port, Direction  # type: ignore
+from time import sleep
+import random
+
+# ===== ENUM SIMPLES =====
+class Enum():
+    def __init__(self, cls_name, items):
+        if type(items) == dict:
+            names = items.keys()
+            vals = items.values()
+        else:
+            names = items
+            vals = range(len(items))
+        self.name_str_list = names
+        self.constant_map = dict(zip(names, vals))
+        self.name_str_map = dict(zip(vals, names))
+    def __getattr__(self, name):
+        return self.constant_map[name]
+    def __getitem__(self, item):
+        return self.constant_map[item]
+    def __call__(self, num):
+        return self.name_str_map[num]
+    def __iter__(self):
+        yield from self.name_str_list
+    def __contains__(self, val):
+        return (val in self.constant_map or val in self.name_str_map)
+    def __len__(self):
+        return len(self.constant_map)
+
+# ===== ESTADOS =====
+estado = Enum("Estado", ["ANDA_RETO", "GIRA"])
+ANDA_RETO = estado.ANDA_RETO
+GIRA = estado.GIRA
+
+# ===== HARDWARE =====
+ev3 = EV3Brick()
+motor_esq = Motor(Port.A, Direction.COUNTERCLOCKWISE)
+motor_dir = Motor(Port.B, Direction.COUNTERCLOCKWISE)
+infra = InfraredSensor(Port.S2)
+
+# ===== CONSTANTES =====
+VELOCIDADE_MAX = 100      # Potência máxima para ataque (%)
+VELOCIDADE_GIRO = 45      # Velocidade base de giro
+DISTANCIA_MAXIMA = 80     # (% de detecção do IR) 0-100
+BOOST_ATAQUE = 15         # Potência extra no impacto
+TEMPO_PERSEGUINDO = 0.3   # Segundos de ataque antes de reavaliar
+
+# ===== FUNÇÕES DE MOVIMENTO =====
+def moverRoboDc(vel_esq, vel_dir):
+    motor_esq.dc(vel_esq)
+    motor_dir.dc(vel_dir)
+
+def pararRobo():
+    motor_esq.stop()
+    motor_dir.stop()
+
+# ===== LÓGICA DE ESTADO =====
+def prox_estado(estado_atual):
+    distancia = infra.distance()
+    if distancia <= DISTANCIA_MAXIMA:  
+        return ANDA_RETO
+    else:
+        return GIRA
+
+# ===== PROGRAMA PRINCIPAL =====
+def main():
+    estado_atual = GIRA
+    while True:
+        estado_atual = prox_estado(estado_atual)
+
+        if estado_atual == ANDA_RETO:
+            
+            moverRoboDc(min(VELOCIDADE_MAX + BOOST_ATAQUE, 100),
+                        min(VELOCIDADE_MAX + BOOST_ATAQUE, 100))
+            sleep(TEMPO_PERSEGUINDO)  
+
+        elif estado_atual == GIRA:
+            
+            var = random.randint(-3, 3)
+            moverRoboDc(VELOCIDADE_GIRO + var, -(VELOCIDADE_GIRO + var))
+
+        
+        sleep(0.01)
+
+main()
