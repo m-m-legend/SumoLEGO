@@ -80,6 +80,9 @@ def prox_estado(estado_atual):
 
 # ===== PROGRAMA PRINCIPAL =====
 def main():
+    # Ré em caso de empate
+    moverRoboDc(-VELOCIDADE_MAX, -VELOCIDADE_MAX)
+    sleep(1.5)
     estado_atual = GIRA
     while True:
         estado_atual = prox_estado(estado_atual)
