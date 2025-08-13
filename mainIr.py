@@ -82,6 +82,7 @@ def prox_estado(estado_atual):
 def main():
     estado_atual = GIRA
     while True:
+        sleep(0.4)
         estado_atual = prox_estado(estado_atual)
 
         if estado_atual == ANDA_RETO:

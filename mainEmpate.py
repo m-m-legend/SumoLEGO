@@ -80,6 +80,7 @@ def prox_estado(estado_atual):
 
 # ===== PROGRAMA PRINCIPAL =====
 def main():
+    sleep(0.4)
     # Ré em caso de empate
     moverRoboDc(-VELOCIDADE_MAX, -VELOCIDADE_MAX)
     sleep(1.5)
